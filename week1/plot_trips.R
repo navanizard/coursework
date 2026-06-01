@@ -1,6 +1,8 @@
 ########################################
 # load libraries
 ########################################
+#change directories
+setwd("c:/Users/nava/Documents/coursework/week1")
 
 # load some packages that we'll need
 library(tidyverse)
@@ -140,7 +142,11 @@ trips_with_weather %>%
 # compute the average number of trips and standard deviation in number of trips by hour of the day
 # hint: use the hour() function from the lubridate package
 trips_with_weather %>%
-    mutate(hr = hour(date))
+    mutate(hr = hour(date)) %>%
+    group_by(hr) %>%
+    summarize(count = n()) %>%
+    summarize(avg = mean(count), std = sd(count)) %>%
+    ggplot(aes())
 
 # plot the above
 
