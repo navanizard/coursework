@@ -26,7 +26,6 @@ trips %>%
     summarise(count = n()) %>%
     ggplot(aes(x = tripduration / 60)) +
     geom_histogram(bins = 10) +
-    # scale_x_log10(label = comma) +
     labs(
         x = 'Trip Duration (minutes)', 
         y = 'Number of Trips', 
@@ -37,7 +36,7 @@ trips %>%
     filter(tripduration <= 40000) %>% #filter out all trips longer than 24 hours
     ggplot(aes(x = tripduration / 60, fill = usertype)) +
     geom_histogram(bins = 10) +
-    scale_y_log10(label = comma) +
+    scale_y_continuous(label = comma) +
     labs(
         x = 'Trip Duration (minutes)', 
         y = 'Number of Trips', 
@@ -72,27 +71,51 @@ trips %>%
         title = 'Number of Trips by Age and Gender',
         color = 'Gender')
 
------------------------------------------------------------------------------------INC
 # plot the ratio of male to female trips (on the y axis) by age (on the x axis) 
 # hint: use the pivot_wider() function to reshape things to make it easier to compute this ratio
-# (you can skip this and come back to it tomorrow if we haven't covered pivot_wider() yet)
+trips %>%
+    filter(!is.na(birth_year), gender != "Unknown") %>% #filter out NA in gender and age
+    mutate(age = 2014 - birth_year) %>%
+    group_by(age, gender) %>%
+    summarise(count = n()) %>%
+    pivot_wider(names_from = gender, values_from = count) %>%
+    mutate(ratio = Male / Female) %>%
+    ggplot(aes(x = age, y = ratio, color = age)) +
+    geom_point() + 
+    xlim(0, 80) + 
+    labs(
+        x = 'Age', 
+        y = 'Ratio of Male to Female', 
+        title = 'Ratio of Male to Female Trips by Age',
+        color = 'Age')
+
 
 ########################################
 # plot weather data
 ########################################
 # plot the minimum temperature (on the y axis) over each day (on the x axis)
 weather %>% 
-    ggplot(aes(x = date, y = tmin)) +
+    ggplot(aes(x = ymd, y = tmin)) +
     geom_point() +
     labs(
         x = 'Date', 
         y = 'Minimun Temperature', 
-        title = 'Minimum Temperature Over Each Day')
+        title = 'Minimum Temperature Over Each Day') +
+    scale_x_date(breaks = '3 months')
 
---------------------------------------------------------------------------------------------INC
 # plot the minimum temperature and maximum temperature (on the y axis, with different colors) over each day (on the x axis) 
 # hint: try using the pivot_longer() function for this to reshape things before plotting
-# (you can skip this and come back to it tomorrow if we haven't covered reshaping data yet)
+weather %>%
+    pivot_longer(names_to = 'tmin_max', values_to = 'temps', cols = c(tmin, tmax)) %>%
+    ggplot(aes(x = ymd, y = temps, color = tmin_max)) +
+    geom_line() +
+    labs (
+        x = 'Date',
+        y = 'Min and Max Temperature',
+        title = 'Min and Max Temperatures Over Each Day', 
+        color = 'Temperature Limits') +
+        scale_x_date(breaks = '1 month')
+      
 
 ########################################
 # plot trip and weather data
@@ -125,7 +148,8 @@ trips_with_weather %>%
         x = 'Minimum Temperature', 
         y = 'Number of Trips', 
         color = 'Substantial Percipitation',
-        title = 'Number of Trips as a Function of the Minimum Temperature') 
+        title = 'Number of Trips as a Function of the Minimum Temperature') + 
+    scale_y_continuous(label = comma)
 
 # add a smoothed fit on top of the previous plot, using geom_smooth
 trips_with_weather %>% 
@@ -139,9 +163,10 @@ trips_with_weather %>%
         x = 'Minimum Temperature', 
         y = 'Number of Trips', 
         color = 'Substantial Percipitation',
-        title = 'Number of Trips as a Function of the Minimum Temperature') 
+        title = 'Number of Trips as a Function of the Minimum Temperature') +
+    scale_y_continuous(label = comma)
 
-# compute the average number of trips and standard deviation in number of trips by hour of the day
+# compute and plot the average number of trips and standard deviation in number of trips by hour of the day
 # hint: use the hour() function from the lubridate package
 trips_with_weather %>%
     mutate(hr = hour(starttime), day = as.Date(starttime)) %>%
@@ -155,8 +180,6 @@ trips_with_weather %>%
         x = 'Hour of the Day', 
         y = 'Average Number of Trips', 
         title = 'Avg Number of Trips and Std in Number of Trips by Hour of the Day') 
-
-# plot the above
 
 # repeat this, but now split the results by day of the week (Monday, Tuesday, ...) or weekday vs. weekend days
 # hint: use the wday() function from the lubridate package
