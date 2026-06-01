@@ -72,7 +72,8 @@ trips %>%
         title = 'Number of Trips by Age and Gender',
         color = 'Gender')
 
-# plot the ratio of male to female trips (on the y axis) by age (on the x axis) ------------------------------------
+-----------------------------------------------------------------------------------INC
+# plot the ratio of male to female trips (on the y axis) by age (on the x axis) 
 # hint: use the pivot_wider() function to reshape things to make it easier to compute this ratio
 # (you can skip this and come back to it tomorrow if we haven't covered pivot_wider() yet)
 
@@ -88,7 +89,8 @@ weather %>%
         y = 'Minimun Temperature', 
         title = 'Minimum Temperature Over Each Day')
 
-# plot the minimum temperature and maximum temperature (on the y axis, with different colors) over each day (on the x axis) -----------------------------------------------------------
+--------------------------------------------------------------------------------------------INC
+# plot the minimum temperature and maximum temperature (on the y axis, with different colors) over each day (on the x axis) 
 # hint: try using the pivot_longer() function for this to reshape things before plotting
 # (you can skip this and come back to it tomorrow if we haven't covered reshaping data yet)
 
@@ -142,13 +144,32 @@ trips_with_weather %>%
 # compute the average number of trips and standard deviation in number of trips by hour of the day
 # hint: use the hour() function from the lubridate package
 trips_with_weather %>%
-    mutate(hr = hour(date)) %>%
-    group_by(hr) %>%
+    mutate(hr = hour(starttime), day = as.Date(starttime)) %>%
+    group_by(hr, day) %>%
     summarize(count = n()) %>%
+    group_by(hr) %>%
     summarize(avg = mean(count), std = sd(count)) %>%
-    ggplot(aes())
+    ggplot(aes(x = hr, y = avg, ymin = avg - std, ymax = avg + std)) +
+    geom_pointrange() +
+    labs(
+        x = 'Hour of the Day', 
+        y = 'Average Number of Trips', 
+        title = 'Avg Number of Trips and Std in Number of Trips by Hour of the Day') 
 
 # plot the above
 
 # repeat this, but now split the results by day of the week (Monday, Tuesday, ...) or weekday vs. weekend days
 # hint: use the wday() function from the lubridate package
+trips_with_weather %>%
+    mutate(hr = hour(starttime), weekday = wday(starttime, label = TRUE), day = as.Date(starttime)) %>%
+    group_by(hr, weekday, day) %>%
+    summarize(count = n()) %>%
+    group_by(hr, weekday) %>%
+    summarize(avg = mean(count), std = sd(count)) %>%
+    ggplot(aes(x = hr, y = avg, ymin = avg - std, ymax = avg + std)) +
+    geom_pointrange() +
+    labs(
+        x = 'Hour of the Day', 
+        y = 'Average Number of Trips', 
+        title = 'Avg Number of Trips and Std in Number of Trips by Hour of the Day') +
+        facet_wrap(~ weekday)
