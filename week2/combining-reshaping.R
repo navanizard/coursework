@@ -5,9 +5,24 @@ library(tidyverse)
 # Compute the rate for table2, and table 4a + table4b. You will need
 # to perform four operations:
 #   1. Extract the number of TB cases per country per year.
+table2 %>%
+  pivot_wider(names_from = type, values_from = count) %>% 
+  group_by(country, year) %>%
+  select(cases)
 #   2. Extract the matching population per country per year.
+table2 %>%
+  pivot_wider(names_from = type, values_from = count) %>% 
+  group_by(country, year) %>%
+  select(population)
 #   3. Divide cases by population, and multiply by 10000.
+table2 %>%
+  pivot_wider(names_from = type, values_from = count) %>% 
+  group_by(country, year) %>%
+  mutate(ratio = (cases / population)* 10000)
 #   4. Store back in the appropriate place.
+
+
+
 
 # Which representation is easiest to work with? Which is hardest? Why?
 # Add your answer as a comment.
