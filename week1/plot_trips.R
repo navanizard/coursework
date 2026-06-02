@@ -25,7 +25,7 @@ trips %>%
     group_by(tripduration) %>%
     summarise(count = n()) %>%
     ggplot(aes(x = tripduration / 60)) +
-    geom_histogram(bins = 10) +
+    geom_histogram(bins = 30) +
     labs(
         x = 'Trip Duration (minutes)', 
         y = 'Number of Trips', 
@@ -140,7 +140,7 @@ trips_with_weather %>%
 # you'll need to decide what constitutes "substantial precipitation" and create a new T/F column to indicate this
 trips_with_weather %>% 
     mutate(substantial_prcp = (prcp >= mean(prcp))) %>%
-    group_by(tmin, substantial_prcp) %>%
+    group_by(ymd, substantial_prcp, tmin) %>%
     summarize(count = n()) %>%
     ggplot(aes(x = tmin, y = count, color = substantial_prcp)) +
     geom_point() +
@@ -154,7 +154,7 @@ trips_with_weather %>%
 # add a smoothed fit on top of the previous plot, using geom_smooth
 trips_with_weather %>% 
     mutate(substantial_prcp = (prcp >= mean(prcp))) %>%
-    group_by(tmin, substantial_prcp) %>%
+    group_by(ymd, tmin, substantial_prcp) %>%
     summarize(count = n()) %>%
     ggplot(aes(x = tmin, y = count, color = substantial_prcp)) +
     geom_point() +

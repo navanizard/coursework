@@ -26,13 +26,24 @@ smaller %>%
 ---
 27.3.1 Exercise 3
 ---
----
-TODO
----
 
+<!-- 27.3.1 Exercises
+Practice what you’ve learned by creating a brief CV. The title should be your name, and you should include headings for (at least) education or employment. Each of the sections should include a bulleted list of jobs/degrees. Highlight the year in bold.
+
+Using the R Markdown quick reference, figure out how to:
+
+Add a footnote.
+Add a horizontal rule.
+Add a block quote. -->
 ---
 27.4.7 Exercise 1
 ---
 ---
-TODO
+# Nava Nizard
+## Education
+* CUNY Hunter College (**2024 - 2028**)
+  * Bachelor's of Arts in Computer Science
+## Employment
+* InterDigital Inc. : Software Engineer Intern
+  * Developed SQL
 ---
