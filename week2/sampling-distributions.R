@@ -71,15 +71,20 @@ library(tidyverse)
 #
 # 1. What is the probability that the total weight of 8 people exceeds 650kg? 0.0572
 # WORK: P(x > 650) = P(z > (650-560)/57) = pnorm((650-560)/57, lower.tail = FALSE)
-# 2. What is the probability that the total weight of 9 people exceeds 650kg?
-# WORK
+# 2. What is the probability that the total weight of 9 people exceeds 650kg? 0.3715
+# WORK: P(y > 650) = P(z > (650-630)/61)) = pnorm((650-630)/61, lower.tail = FALSE)
 # 3. What is the central region that contains 80% of distribution of the
-#    total weight of 8 people?
+#    total weight of 8 people? [486.9516, 633.0484]
+# WORK: P( 10% < z < 90% ) -> 
+#       Upper Bound = qnorm(0.90, mean = 560, sd = 57); 
+#       Lower Bound = qnorm(0.10, mean = 560, sd = 57);
 # 4. What is the central region that contains 80% of distribution of the
-#    total weight of 9 people?
+#    total weight of 9 people? [551.8254, 708.1746]
+# WORK: P( 10% < z < 90% ) -> 
+#       Upper Bound = qnorm(0.90, mean = 630, sd = 61); 
+#       Lower Bound = qnorm(0.10, mean = 630, sd = 61);
 
 # Hint: use pnorm() and qnorm().
-
 
 
 ####################################################################################
@@ -94,17 +99,27 @@ library(tidyverse)
 # Our goal is to investigate the sampling distribution of the sample average
 # of the variable "bmi". We assume a sample of size n = 150.
 #
-# 1. Compute the population average of the variable "bmi".
-# 2. Compute the population standard deviation of the variable "bmi".
+# 1. Compute the population average of the variable "bmi". 25.0
+pop2 %>% summarize(avg = mean(bmi))
+# 2. Compute the population standard deviation of the variable "bmi". 4.19
+pop2 %>% summarize(std = sd(bmi))  
 # 3. Compute the expectation of the sampling distribution for the sample
-#    average of the variable.
+#    average of the variable. 25.0
+pop2 %>% summarize(avg = mean(bmi))
+# WORK: E(xbar) = miu
 # 4. Compute the standard deviation of the sampling distribution for the
-#    sample average of the variable.
+#    sample average of the variable. 0.3421
+# WORK: sigma_of_xbar = (sigma_of_x) / sqrt(N) -> 4.19 / sqrt(150) = 0.3421
 # 5. Identify, using simulations, the central region that contains 80% of
-#    the sampling distribution of the sample average.
+#    the sampling distribution of the sample average. [24.5450, 25.4234]
+means <- replicate(1e5, expr = mean(slice_sample(pop2, n = 150)$bmi))
+lower_limit <- quantile(means, 0.1)  
+upper_limit <- quantile(means, 0.9)
 # 6. Identify, using the Central Limit Theorem, an approximation of the
 #    central region that contains 80% of the sampling distribution of the
-#    sample average.
+#    sample average. [24.5616, 25.4384]
+lower_limit2 <- qnorm(0.1, mean = 25, sd = 0.3421)
+upper_limit2 <- qnorm(0.9, mean = 25, sd = 0.3421)
 
 pop2 <- read_csv("http://pluto.huji.ac.il/~msby/StatThink/Datasets/pop2.csv")
 
