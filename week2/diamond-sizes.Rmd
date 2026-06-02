@@ -5,6 +5,10 @@ output: html_document
 ---
 
 ```{r setup, include = FALSE}
+
+knitr::opts_chunk$set( #set default chunk options to not show the R code
+  echo = FALSE
+)
 library(ggplot2)
 library(dplyr)
 
@@ -23,27 +27,55 @@ smaller %>%
   geom_freqpoly(binwidth = 0.01)
 ```
 
----
+```{r}
+smaller %>%
+  ggplot(aes(x = carat, color = color)) + 
+  geom_freqpoly(binwidth = 0.01)
+```
+
+```{r}
+smaller %>%
+  ggplot(aes(x = carat, color = cut)) + 
+  geom_freqpoly(binwidth = 0.01)
+```
+
+***
+
 27.3.1 Exercise 3
----
 
-<!-- 27.3.1 Exercises
-Practice what you’ve learned by creating a brief CV. The title should be your name, and you should include headings for (at least) education or employment. Each of the sections should include a bulleted list of jobs/degrees. Highlight the year in bold.
+***
 
-Using the R Markdown quick reference, figure out how to:
+***
 
-Add a footnote.
-Add a horizontal rule.
-Add a block quote. -->
----
 27.4.7 Exercise 1
----
----
+
+***
+
+***
+
 # Nava Nizard
+
+---
+
 ## Education
 * CUNY Hunter College (**2024 - 2028**)
   * Bachelor's of Arts in Computer Science
-## Employment
-* InterDigital Inc. : Software Engineer Intern
-  * Developed SQL
+
 ---
+
+## Employment
+* Microsoft: Data Science Research Fellow [^1] (June **2026**)
+  * Learnt R and the basics of statistics and data science.
+
+* InterDigital Inc.: Software Engineer Intern (Jan **2026**)
+  * Developed SQL scripts for a CLM migration.
+  * Optimized the scripts for fast execution time.
+
+---
+
+## Quote
+> You miss 100% of the shots you don't take
+
+[^1]: This is techinically not an employment in the regular sense of the word.
+
+***
