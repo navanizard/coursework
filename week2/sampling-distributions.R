@@ -70,19 +70,21 @@ library(tidyverse)
 # Normal distribution with a mean of 630kg and a standard deviation of 61kg.
 #
 # 1. What is the probability that the total weight of 8 people exceeds 650kg? 0.0572
-# WORK: P(x > 650) = P(z > (650-560)/57) = pnorm((650-560)/57, lower.tail = FALSE)
+# WORK: P(x > 650) = P(z > (650-560)/57) = 
+pnorm((650-560)/57, lower.tail = FALSE)
 # 2. What is the probability that the total weight of 9 people exceeds 650kg? 0.3715
-# WORK: P(y > 650) = P(z > (650-630)/61)) = pnorm((650-630)/61, lower.tail = FALSE)
+# WORK: P(y > 650) = P(z > (650-630)/61)) = 
+pnorm((650-630)/61, lower.tail = FALSE)
 # 3. What is the central region that contains 80% of distribution of the
 #    total weight of 8 people? [486.9516, 633.0484]
 # WORK: P( 10% < z < 90% ) -> 
-#       Upper Bound = qnorm(0.90, mean = 560, sd = 57); 
-#       Lower Bound = qnorm(0.10, mean = 560, sd = 57);
+upper_bound <- qnorm(0.90, mean = 560, sd = 57); 
+lower_bound <- qnorm(0.10, mean = 560, sd = 57);
 # 4. What is the central region that contains 80% of distribution of the
 #    total weight of 9 people? [551.8254, 708.1746]
 # WORK: P( 10% < z < 90% ) -> 
-#       Upper Bound = qnorm(0.90, mean = 630, sd = 61); 
-#       Lower Bound = qnorm(0.10, mean = 630, sd = 61);
+upper_bound2 <- qnorm(0.90, mean = 630, sd = 61); 
+lower_bound2 <- qnorm(0.10, mean = 630, sd = 61);
 
 # Hint: use pnorm() and qnorm().
 
