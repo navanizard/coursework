@@ -100,14 +100,16 @@ lower_bound2 <- qnorm(0.10, mean = 630, sd = 61)
 # Our goal is to investigate the sampling distribution of the sample average
 # of the variable "bmi". We assume a sample of size n = 150.
 #
+pop2 <- read_csv("http://pluto.huji.ac.il/~msby/StatThink/Datasets/pop2.csv")
+
 N <- 150
 # 1. Compute the population average of the variable "bmi". 25.0
-pop_mean <- pop2 %>% summarize(avg = mean(bmi))
+pop_mean <- mean(pop2$bmi)
 # 2. Compute the population standard deviation of the variable "bmi". 4.19
-pop_sd <- pop2 %>% summarize(std = sd(bmi))  
+pop_sd <- sd(pop2$bmi)
 # 3. Compute the expectation of the sampling distribution for the sample
 #    average of the variable. 25.0
-sample_mean <- pop2 %>% summarize(avg = mean(bmi))
+sample_mean <- mean(pop2$bmi)
 # WORK: E(xbar) = miu
 # 4. Compute the standard deviation of the sampling distribution for the
 #    sample average of the variable. 0.3421
@@ -121,10 +123,8 @@ upper_limit <- quantile(means, 0.9)
 # 6. Identify, using the Central Limit Theorem, an approximation of the
 #    central region that contains 80% of the sampling distribution of the
 #    sample average. [24.5616, 25.4384]
-lower_limit2 <- qnorm(0.1, mean = pop_mean, sd = sam)
-upper_limit2 <- qnorm(0.9, mean = pop_mean, sd = 0.3421)
-
-pop2 <- read_csv("http://pluto.huji.ac.il/~msby/StatThink/Datasets/pop2.csv")
+lower_limit2 <- qnorm(0.1, mean = pop_mean, sd = sample_sd)
+upper_limit2 <- qnorm(0.9, mean = pop_mean, sd = sample_sd)
 
 # Hint: for (5), use replicate() to draw many samples of size 150,
 # compute the mean of bmi for each, then use quantile().
