@@ -72,8 +72,8 @@ stocks %>%
 # ANSWER: It would attempt to seperate the ages and heights as new columns, but since
 #         there are duplicate entries the age for the same given name, there'd be an error. 
 # How could you add a new column to uniquely identify each value?
-# ANSWER: pivot_wider(names_from: names, values_from = values) after adding a row number to distinguish
-#         between each observation. 
+# ANSWER: group_by(name, names), add a row_number() to distinguish between each observation, and 
+#         then pivot_wider(names_from: names, values_from = values)
 
 people <- tribble(
   ~name,             ~names,  ~values,
