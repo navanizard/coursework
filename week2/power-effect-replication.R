@@ -9,13 +9,13 @@ magnets <- read_csv("http://pluto.huji.ac.il/~msby/StatThink/Datasets/magnets.cs
 # to such condition involves using a placebo treatment as a control. A placebo
 # treatment is a treatment that externally looks identical to the actual treatment
 # but, in reality, it does not have the active ingredients. The reason for using
-# placebo for control is the “placebo effect”. Patients tent to react to the fact that
+# placebo for control is the “placebo effect”. Patients tend to react to the fact that
 # they are being treated regardless of the actual beneficial effect of the treatment
 
 # As an example, consider the trial for testing magnets as a treatment for pain
-# that was described in Question 9.1. The patients that where randomly assigned
+# that was described in Question 9.1. The patients that were randomly assigned
 # to the control (the last 21 observations in the file “magnets.csv”) were treated
-# with devises that looked like magnets but actually were not. The goal in this
+# with devices that looked like magnets but actually were not. The goal in this
 # exercise is to test for the presence of a placebo effect in the case study “Magnets
 # and Pain Relief” of Question 9.1 using the data in the file “magnets.csv”.
 
@@ -26,9 +26,20 @@ magnets <- read_csv("http://pluto.huji.ac.il/~msby/StatThink/Datasets/magnets.cs
 #   expected value of X, the null hypothesis and the alternative hypothesis
 #   for a statistical test to determine the presence of a placebo effect. The null
 #   hypothesis should reflect the situation that the placebo effect is absent
+
+# ANSWER: 
+    # H0 (Null Hypothesis): X = 0
+    # HA (Alternative Hypothesis): X > 0
+
 # 2. Identify the observations that can be used in order to test the hypotheses.
+placebo_change <- magnets$change[30:50] 
+
 # 3. Carry out the test and report your conclusion. (Use a significance level of
 #    5%.)
+results <- t.test(placebo_change, alternative = "greater", mu = 0)
+p_val <- results$p.value
+p_val < 0.05 # TRUE, so reject the null. We have sufficient evidence to support the claim
+#              that there is an observed difference in pain levels for the treament and control groups. 
 
 ####################################################################################
 # IST Chapter 13, Exercise 13.1
@@ -38,7 +49,7 @@ magnets <- read_csv("http://pluto.huji.ac.il/~msby/StatThink/Datasets/magnets.cs
 # trial that involves magnets as a treatment for pain. The trial is described in
 # Question 9.1. The results of the trial are provided in the file “magnets.csv”
 
-# Patients in this trail where randomly assigned to a treatment or to a control.
+# Patients in this trial were randomly assigned to a treatment or to a control.
 # The responses relevant for this analysis are either the variable “change”, which
 # measures the difference in the score of pain reported by the patients before and
 # after the treatment, or the variable “score1”, which measures the score of pain
@@ -50,11 +61,63 @@ magnets <- read_csv("http://pluto.huji.ac.il/~msby/StatThink/Datasets/magnets.cs
 # All tests should conducted at the 5% significance level:
 # 1. Is there a significance difference between the treatment and the control
 #    groups in the expectation of the reported score of pain before the application of the device?
+
+# ANSWER: 
+    # H0 (Null Hypothesis): Xtrt - Xctrl = 0
+    # HA (Alternative Hypothesis): Xtrt - Xctrl != 0
+
+control_score1 <- magnets$score1[30:50] 
+treatment_score1 <- magnets$score1[1:29]
+
+results <- t.test(control_score1, treatment_score1, mu = 0)
+p_val <- results$p.value
+p_val < 0.05 # FALSE, so fail to reject the null. We do not have sufficient evidence to support 
+#              the claim that there isn't an observed difference in the expected value of the
+#              initial pain levels for the treament and control groups before the application 
+#              of the device. 
+
+
 # 2. Is there a significance difference between the treatment and the control
 #    groups in the variance of the reported score of pain before the application
 #    of the device?
+
+control_score1 <- magnets$score1[30:50] 
+treatment_score1 <- magnets$score1[1:29]
+
+results <- var.test(control_score1, treatment_score1)
+p_val <- results$p.value
+p_val < 0.05 # FALSE, so fail to reject the null. We do not have sufficient evidence to support 
+#              the claim that there isn't an observed difference in the variance of the 
+#              initial pain levels for the treament and control groups before the application 
+#              of the device. 
+
 # 3. Is there a significance difference between the treatment and the control
 #    groups in the expectation of the change in score that resulted from the
 #    application of the device?
+
+# ANSWER: 
+    # H0 (Null Hypothesis): Xtrt - Xctrl = 0
+    # HA (Alternative Hypothesis): Xtrt - Xctrl != 0
+
+control_change <- magnets$change[30:50] 
+treatment_change <- magnets$change[1:29]
+
+results <- t.test(control_change, treatment_change, mu = 0)
+p_val <- results$p.value
+p_val < 0.05 # TRUE, so reject the null. We have sufficient evidence to support 
+#              the claim that there is an observed difference in the expected value of the
+#              pain levels for the treament and control groups after the application 
+#              of the device. 
+
 # 4. Is there a significance difference between the treatment and the control
 #    groups in the variance of the change in score that resulted from the application of the device?
+
+control_change <- magnets$change[30:50] 
+treatment_change <- magnets$change[1:29]
+
+results <- var.test(control_change, treatment_change)
+p_val <- results$p.value
+p_val < 0.05 # TRUE, so reject the null. We have sufficient evidence to support 
+#              the claim that there is an observed difference in the variance of the 
+#              pain levels for the treament and control groups after the application 
+#              of the device. 
