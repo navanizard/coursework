@@ -24,7 +24,7 @@ b <- y_bar - m * x_bar
 
 # c. Calculate R^2 of the regression line for predicting height from 
 #    shoulder girth, and interpret in the context of the application. 
-r_sqr <- r^2
+r_sqr <- r^2 # 0.4489
 # (NOTE: r^2 represents the proportion of variability in the response 
 #        variable (y) that's explained by the explanatory variable (x).)
 # ANSWER: About 45% of the variability in heights is explained by the 
@@ -37,9 +37,9 @@ y_hat <- 0.6080*(100) + 105.3571 # 166.1571 cm
 
 # e. The student from part (d) is 160 cm tall. Calculate the residual, 
 #    and explain what this residual means.
-residual <- y_hat - 160 # 6.1571, which means that the difference
-#                         between the predicted height and the actual 
-#                         height is apprx 6 cm.
+residual <- 160 - y_hat # -6.1571, which means that the difference
+#                         between the actual height and the predicted 
+#                         height and is apprx 6 cm (so the model overpredicted).
 
 # f. A one year old has a shoulder girth of 56 cm. Would it be 
 #    appropriate to use this linear model to predict the height of this child?
@@ -61,15 +61,29 @@ residual <- y_hat - 160 # 6.1571, which means that the difference
 
 
 # a. Describe the relationship between height and weight.
-# ANSWER: Positive correlation
+# ANSWER: Positive correlation. As height increases, weight increases.
+
 # b. Write the equation of the regression line. Interpret the slope
 #    and intercept in context.
 # ANSWER: 
-    # As the x increases by 1 cm, the y increases 1.0176cm. 
-    # When the x is 0, the y is -105.0113. 
-# y = 1.0176x -105.0113
-# c.Do the data provide strong evidence that an increase in height 
+    # y = 1.0176x -105.0113
+    # As the height increases by 1 cm, the weight increases 1.0176kg. 
+    # When the height is 0, the weight is -105.0113kg. 
+
+# c. Do the data provide strong evidence that an increase in height 
 #   is associated with an increase in weight? State the null and 
 #   alternative hypotheses, report the p-value, and state your conclusion.
+# ANSWER: 
+    # H0 (Null Hypothesis): m = 0
+    # HA (Alternative Hypothesis): m > 0
+    # p apprx 0. CONCLUSION: Reject the null, meaning that we have sufficient
+    #                        evidence to support the claim that the slope is greater
+    #                        than 0. So, the data provides strong evidence that an
+    #                        increase in height is assiciated with an increase in weight.
+
 # d. The correlation coefficient for height and weight is 0.72. 
 #    Calculate R^2 and interpret it in context.
+r <- 0.72
+r_sqr <- r^2 #0.5184
+# ANSWER: About 52% of the variability in weight is explained by the 
+#         height.
