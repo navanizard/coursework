@@ -6,7 +6,15 @@
 # height          1.0176      0.0440    23.13    0.0000
 body <- read.table("body.dat.txt", header = TRUE)
 
-# INCOMPLETE
+names(body)[23:24]
+# Column 23   Weight (kg)   X65.6
+# Column 24   Height (cm)   X174.0
+
+names(body)[23] = 'weight'               
+names(body)[24] = 'height'               
+
+lm.fit <- lm(weight ~ height, data = body)
+summary(lm.fit)
 
 ###################################################################################
 # ISRS Exercise 6.1
