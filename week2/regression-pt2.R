@@ -6,6 +6,8 @@
 # height          1.0176      0.0440    23.13    0.0000
 body <- read.table("body.dat.txt", header = TRUE)
 
+# INCOMPLETE
+
 ###################################################################################
 # ISRS Exercise 6.1
 #  The Child Health and Development Studies investigate a range of
@@ -30,11 +32,22 @@ lm.fit <- lm(bwt ~ smoke, data = babyweights)
 summary(lm.fit)
 
 # a. Write the equation of the regression line.
-# ANSWER: y = -8.94 + 123.05
+# ANSWER: y_hat = -8.94x + 123.05
 
 # b. Interpret the slope in this context, and calculate the predicted birth weight of babies born to
 # smoker and non-smoker mothers.
+# ANSWER: For non-smoking mothers, the average birthweight of babies is 123.05oz, whereas for
+#         smoking mothers, it's 114.11oz.
+
 # c. Is there a statistically significant relationship between the average birth weight and smoking?
+# ANSWER: 
+    # H0 (Null Hypothesis): m = 0
+    # HA (Alternative Hypothesis): m < 0
+    # p apprx 0. CONCLUSION: Reject the null, meaning that we have sufficient
+    #                        evidence to support the claim that the slope is less
+    #                        than 0. So, the data provides strong evidence of a 
+    #                        statistically significant relationship (negative correlation)
+    #                        between the average birth weight and smoking.
 
 ###################################################################################
 # ISRS Exercise 6.2
@@ -48,9 +61,24 @@ summary(lm.fit)
 # parity          -1.93        1.19    -1.62    0.1052
 #
 # a. Write the equation of the regression line.
+# ANSWER: y_hat = -1.93x + 120.07
+
 # b. Interpret the slope in this context, and calculate the predicted birth weight of first borns and
 #    others.
+# ANSWER: For first born babies, the average birth weight is 120.07oz, whereas for non-first born
+#         babies, it's 118.14.
+
 # c. Is there a statistically significant relationship between the average birth weight and parity?
+# ANSWER:: 
+    # H0 (Null Hypothesis): m = 0
+    # HA (Alternative Hypothesis): m < 0
+    # p = 0.1052.
+    # CONCLUSION: Fail to reject the null, meaning that we do not have sufficient
+    #             evidence to support the claim that the slope is not less
+    #             than 0. So, the data does not provides strong evidence of a 
+    #             statistically significant relationship (negative correlation)
+    #             between the average birth weight and parity.
+
 
 ###################################################################################
 # ISRS Exercise 6.3
@@ -79,10 +107,33 @@ summary(lm.fit)
 # smoke           -8.40        0.95    -8.81    0.0000
 #
 # a. Write the equation of the regression line that includes all variables:
+# ANSWER: y_hat = 0.44*gestation - 3.33*parity - 0.01*age + 1.15*height + 0.05*weight - 8.40*smoke - 80.41
+
 # b. Interpret the slopes of gestation and age in this context:
+# ANSWER: As gestation increases by 1 day, the baby's birth weight increases by 0.44oz. As the mother's
+#         age increases by 1 year, the baby's birth weight decreases by 0.01oz.
+
 # c. The coefficient for parity is different than in the linear model shown in Exercise 6.2. Why
 #    might there be a difference?
+# ANSWER: In exercise 6.2, the coefficient in the model represents the effect of parity alone on
+#         the baby's birth weight. However, here, in the multiple regression model, it represents the 
+#         effect of parity while holding all the other variables constant.
+
 # d. Calculate the residual for the first observation in the dataset.
+# ANSWER: 
+y_hat = 0.44*(284) - 3.33*(0) - 0.01*(27) + 1.15*(62) + 0.05*(100) - 8.40*(0) - 80.41
+residual <- 120 - y_hat # -0.58, which means that the difference
+#                         between the baby's actual birthweight and the predicted 
+#                         birth weight and is apprx 0.58 oz (so the model overpredicted).
+
 # e. The variance of the residuals is 249.28, and the variance of the birth weights of all babies
 #    in the data set is 332.57. Calculate the R^2 and the adjusted R^2. Note that there are 1,236
-#    bservations in the data set.
+#    observations in the data set.
+# ANSWER: 
+r_sqr <- (332.57 - 249.28) / 332.57 # 0.2504435
+r_sqr_adjusted <- 1 - (1 - r_sqr) * ((1236 - 1)/(1236 - 6 - 1)) # 0.2467842
+
+#Confirm my answers
+lm.fit <- lm(bwt ~ gestation + parity + age + height + weight + smoke, data = babyweights) 
+summary(lm.fit)$r.squared # 0.2579535
+summary(lm.fit)$adj.r.squared # 0.2541383

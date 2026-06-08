@@ -15,7 +15,7 @@ y_bar <- 171.14
 r <- 0.67
 m <- r * (sy/sx)
 b <- y_bar - m * x_bar
-# y = mx + b -> y = 0.6080x + 105.3571
+# y = mx + b -> y_hat = 0.6080x + 105.3571
 
 # b. Intepret the slope and the intercept in this context.
 # ANSWER: 
@@ -66,7 +66,7 @@ residual <- 160 - y_hat # -6.1571, which means that the difference
 # b. Write the equation of the regression line. Interpret the slope
 #    and intercept in context.
 # ANSWER: 
-    # y = 1.0176x -105.0113
+    # y_hat = 1.0176x -105.0113
     # As the height increases by 1 cm, the weight increases 1.0176kg. 
     # When the height is 0, the weight is -105.0113kg. 
 
@@ -79,7 +79,7 @@ residual <- 160 - y_hat # -6.1571, which means that the difference
     # p apprx 0. CONCLUSION: Reject the null, meaning that we have sufficient
     #                        evidence to support the claim that the slope is greater
     #                        than 0. So, the data provides strong evidence that an
-    #                        increase in height is assiciated with an increase in weight.
+    #                        increase in height is associated with an increase in weight.
 
 # d. The correlation coefficient for height and weight is 0.72. 
 #    Calculate R^2 and interpret it in context.
