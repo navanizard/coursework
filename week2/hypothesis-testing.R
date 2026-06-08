@@ -9,7 +9,7 @@ magnets <- read_csv("http://pluto.huji.ac.il/~msby/StatThink/Datasets/magnets.cs
 #    rating after the application?
 sample_mean <- mean(magnets$change)
 # 2. Is the variable "active" a factor or a numeric variable?
-str(magnets$active)
+str(magnets$active) # ANSWER: A factor
 # 3. Compute the average value of the variable "change" for the patients that
 #    received an active magnet and average value for those that received an
 #    inactive placebo. (Hint: Notice that the first 29 patients received an
@@ -46,8 +46,8 @@ magnets %>%
 #    and the variance of the sample average and of the sample median. Which of
 #    the two estimators has a smaller mean square error?
 
-means <- replicate(1e4, mean(rnorm(100, mean = 3, sd = 2)))
-medians <- replicate(1e4, median(rnorm(100, mean = 3, sd = 2)))
+means <- replicate(1e4, mean(rnorm(100, mean = 3, sd = sqrt(2))))
+medians <- replicate(1e4, median(rnorm(100, mean = 3, sd = sqrt(2))))
 
 expected_mean <- mean(means)
 expected_variance_for_means <- var(means)

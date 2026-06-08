@@ -25,7 +25,13 @@ body <- read.table("body.dat.txt", header = TRUE)
 # don’t need to check linearity since the predictor has only two levels.)
 babyweights <- read.table("babyweights.txt", header = TRUE)
 
+# Replicating the table
+lm.fit <- lm(bwt ~ smoke, data = babyweights)
+summary(lm.fit)
+
 # a. Write the equation of the regression line.
+# ANSWER: y = -8.94 + 123.05
+
 # b. Interpret the slope in this context, and calculate the predicted birth weight of babies born to
 # smoker and non-smoker mothers.
 # c. Is there a statistically significant relationship between the average birth weight and smoking?
