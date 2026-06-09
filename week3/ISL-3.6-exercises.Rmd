@@ -5,11 +5,13 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-install.packages("car")
-install.packages("ISLR2")
+repo = "https://cran.r-project.org"
+install.packages("car", repos = repo)
+install.packages("ISLR2", repos = repo)
 library(ISLR2)
 library(car)
 ```
+
 
 ## 3.6.3 Multiple Linear Regression
 
