@@ -9,6 +9,7 @@ output:
     toc_depth: 3
 ---
 
+
 ```{r setup, include=FALSE}
 repo = "https://cran.r-project.org"
 library(scales)
@@ -23,6 +24,8 @@ theme_set(theme_bw())
 
 Read data from the `ratings.csv` file
 ```{r load-data}
+setwd("c:/Users/nava/Documents/coursework/week3")
+
 ratings <- read_csv('ratings.csv',
                     col_names = c('user_id','movie_id','rating','timestamp'))
 ```
@@ -36,17 +39,14 @@ head(ratings) %>% kable()
 
 ```{r dist-ratings}
 # plot the distribution of rating values https://speakerdeck.com/jhofman/modeling-social-data-lecture-2-introduction-to-counting?slide=26
-
 ratings %>% 
   group_by(rating) %>% 
-  summarize(count = n()) %>%
-  ggplot(aes(x = rating, y = count)) +
+  ggplot(aes(x = rating)) +
   geom_histogram() +
   labs(x = 'Rating', 
-      y = 'Number of Ratings', 
-      title = 'Distribution of Rating Values') + 
-  scale_y_continuous()
-
+       y = 'Number of Ratings', 
+       title = 'Distribution of Rating Values') + 
+  scale_y_continuous(label = comma)
 ```
 
 ## Per-movie stats
@@ -54,24 +54,59 @@ ratings %>%
 ```{r aggregate-by-movie}
 # aggregate ratings by movie, computing mean rating and number of ratings
 # hint: use the n() function for easy counting within a group
+ratings %>%
+  group_by(movie_id) %>%
+  summarize(avg_rating = mean(rating), num_of_ratings = n()) 
 ```
 
 ```{r dist-movie-popularity}
 # plot distribution of movie popularity (= number of ratings the movie received)
 # hint: try scale_x_log10() for a logarithmic x axis
+ratings %>%
+  group_by(movie_id) %>%
+  summarize(num_of_ratings = n()) %>%
+  ggplot(aes(x = num_of_ratings)) +
+  geom_histogram() +
+  labs(x = 'Number of Movie Ratings',
+       y = 'Amount of Movies with that Quantity of Ratings', 
+       title = 'Distribution of Movie Popularity') +
+  scale_x_log10()
 ```
 
 ```{r dist-mean-ratings-by-movie}
 # plot distribution of mean ratings by movie https://speakerdeck.com/jhofman/modeling-social-data-lecture-2-introduction-to-counting?slide=28
 # hint: try geom_histogram and geom_density
+ratings %>%
+  group_by(movie_id) %>%
+  summarize(avg_rating = mean(rating), num_of_ratings = n()) %>%
+  ggplot(aes(x = avg_rating)) + 
+  geom_density(fill = 'black') + 
+  labs(x = 'Average Movie Rating', 
+       y = 'Density', 
+       title = 'Distribution of Mean Ratings by Movie')
 ```
 
 ```{r cdf-movie-pop}
-# rank movies by popularity (number of ratings) and compute the cdf, or fraction of all views covered by the top-k movies https://speakerdeck.com/jhofman/modeling-social-data-lecture-2-introduction-to-counting?slide=30
+# rank movies by popularity (number of ratings) and compute the cdf, or fraction 
+# of all views covered by the top-k movies https://speakerdeck.com/jhofman/modeling-social-data-lecture-2-introduction-to-counting?slide=30
 # hint: use dplyr's rank and arrange functions, and the base R sum and cumsum functions
 # store the result in a new data frame so you can use it in creating figure 2 from the paper below
+ratings_with_rank_and_cdf_attributes <- ratings %>%
+  group_by(movie_id) %>%
+  summarise(num_of_ratings_per_movie = n()) %>%
+  mutate(movie_rank = rank(-num_of_ratings_per_movie, ties.method = 'first')) %>%
+  arrange(movie_rank) %>%
+  mutate(total_num_of_ratings = sum(num_of_ratings_per_movie), 
+         cum_sum_of_ratings = cumsum(num_of_ratings_per_movie))
 
 # plot the CDF of movie popularity
+ratings_with_rank_and_cdf_attributes %>%
+  ggplot(aes(x = movie_rank, y = cum_sum_of_ratings / total_num_of_ratings)) +
+  geom_line() +
+  labs(x = 'Movie Rank', 
+       y = 'Cumulative Distribution Function (CDF)', 
+       title = 'Fraction of All Views Covered by the Top K Movies') + 
+  scale_y_continuous(labels = percent_format(accuracy = 1))
 ```
 
 
@@ -79,11 +114,23 @@ ratings %>%
 
 ```{r aggregate-by-user}
 # aggregate ratings by user, computing mean and number of ratings
+ratings %>% 
+  group_by(user_id) %>% 
+  summarize(avg_rating = mean(rating), num_of_ratings_per_user = n())
 ```
 
 ```{r dist-user-activity}
 # plot distribution of user activity (= number of ratings the user made)
 # hint: try a log scale here
+ratings %>%
+  group_by(user_id) %>% 
+  summarize(num_of_ratings_per_user = n()) %>%
+  ggplot(aes(x = num_of_ratings_per_user)) +
+  geom_histogram() +
+  labs(x = 'Number of Movie Ratings',
+       y = 'Amount of Users with that Quantity of Ratings', 
+       title = 'Distribution of User Activity') +
+  scale_x_log10()
 ```
 
 # Anatomy of the long tail
