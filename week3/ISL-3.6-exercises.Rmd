@@ -8,8 +8,11 @@ knitr::opts_chunk$set(echo = TRUE)
 repo = "https://cran.r-project.org"
 install.packages("car", repos = repo)
 install.packages("ISLR2", repos = repo)
+install.packages("MASS", repos = repo)
 library(ISLR2)
 library(car)
+library(MASS)  # contains the Boston dataset
+data("Boston") # load it into your environment
 ```
 
 

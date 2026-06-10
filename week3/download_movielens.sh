@@ -8,12 +8,12 @@
 url=http://files.grouplens.org/datasets/movielens/ml-10m.zip
 
 # download ratings zip file
-[ -f movielens_10M.zip ] || curl -o movielens_10M.zip $url
+[ -f ml-10M.zip ] || curl -o -L ml-10M.zip $url
 
 # uncompress zip file
 if [ ! -f ratings.dat ]
     then
-    unzip movielens_10M.zip && mv ml-10M100K/* .
+    unzip ml-10M.zip && mv ml-10M100K/* .
 fi
 
 # reformat to comma-separated file

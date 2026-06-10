@@ -10,6 +10,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
+repo = "https://cran.r-project.org"
 library(scales)
 library(tidyverse)
 library(knitr)
@@ -35,6 +36,17 @@ head(ratings) %>% kable()
 
 ```{r dist-ratings}
 # plot the distribution of rating values https://speakerdeck.com/jhofman/modeling-social-data-lecture-2-introduction-to-counting?slide=26
+
+ratings %>% 
+  group_by(rating) %>% 
+  summarize(count = n()) %>%
+  ggplot(aes(x = rating, y = count)) +
+  geom_histogram() +
+  labs(x = 'Rating', 
+      y = 'Number of Ratings', 
+      title = 'Distribution of Rating Values') + 
+  scale_y_continuous()
+
 ```
 
 ## Per-movie stats
