@@ -66,11 +66,11 @@ ratings %>%
   group_by(movie_id) %>%
   summarize(num_of_ratings = n()) %>%
   ggplot(aes(x = num_of_ratings)) +
-  geom_histogram() +
+  geom_histogram(bins = 10) +
   labs(x = 'Number of Movie Ratings',
        y = 'Amount of Movies with that Quantity of Ratings', 
        title = 'Distribution of Movie Popularity') +
-  scale_x_log10()
+  scale_x_log10(label = comma)
 ```
 
 ```{r dist-mean-ratings-by-movie}
@@ -78,7 +78,8 @@ ratings %>%
 # hint: try geom_histogram and geom_density
 ratings %>%
   group_by(movie_id) %>%
-  summarize(avg_rating = mean(rating), num_of_ratings = n()) %>%
+  summarize(avg_rating = mean(rating), 
+            num_of_ratings = n()) %>%
   ggplot(aes(x = avg_rating)) + 
   geom_density(fill = 'black') + 
   labs(x = 'Average Movie Rating', 
@@ -140,6 +141,29 @@ ratings %>%
 # note: don't worry about the "null model" lines
 # just do the solid lines and dotted line (optional)
 # https://5harad.com/papers/long_tail.pdf
+full_tbl <- left_join(ratings, ratings_with_rank_and_cdf_attributes)
+
+ratings_with_min_ranks_for_satisfactions <- full_tbl %>%
+  group_by(user_id) %>%
+  summarize(num_of_ratings_per_user = n(),
+            min_rank_100 = max(movie_rank),
+            min_rank_90 = quantile(movie_rank, 0.9)) %>% 
+  filter(num_of_ratings_per_user >= 10) 
+  
+ratings_with_min_ranks_for_satisfactions %>%
+  pivot_longer(names_to = "satisfaction_level", values_to = "num_of_ppl_satisfied_at_this_rank", 3:4) %>%
+  group_by(satisfaction_level) %>%
+  arrange(num_of_ppl_satisfied_at_this_rank) %>% 
+  mutate(total_num_of_users = sum(num_of_ppl_satisfied_at_this_rank), 
+         cum_sum_of_ppl_satisfied = cumsum(num_of_ppl_satisfied_at_this_rank)) %>%
+  ggplot(aes(x = num_of_ppl_satisfied_at_this_rank, y = cum_sum_of_ppl_satisfied / total_num_of_users, color = satisfaction_level)) +
+  geom_line() + 
+  labs(x = 'Inventory Size (number of top-k movies offered)',
+       y = 'Fraction of Users Satisfied',
+       title = 'User Satisfaction Curves for Movies As a Function of Inventory Size',
+       color = 'Satisfaction Level') +
+  scale_color_discrete(labels = c('100% Satisfaction Level', '90% Satisfaction Level')) +
+  scale_y_continuous(labels = percent_format(accuracy = 1))
 
 # Specifically, for the subset of users who rated at least 10 movies,
 # produce a plot that shows the fraction of users satisfied (vertical
