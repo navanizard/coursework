@@ -15,9 +15,12 @@ output:
 repo = "https://cran.r-project.org"
 
 install.packages("here", repos = repo) # Install the package
+install.packages("httpgd", repos = repo)
 library(here)
 library(scales)
 library(tidyverse)
+library(httpgd)
+httpgd:hgd()
 
 theme_set(theme_bw())
 
@@ -282,7 +285,7 @@ years_and_half_lives %>%
   filter(year >= 1850 & year <= 2012) %>%
   ggplot(aes(x = year, y = num_of_years_to_reach_half_life)) +
   geom_point() +
-  geom_point(term == '1883', term == '1910', term == '1950') +
+  geom_point(data = years_and_half_lives %>% filter(term == '1883' | term == '1910' | term == '1950') %>% mutate(term = as.character(term)), aes(color = term)) +
   geom_smooth() +
   scale_color_manual(values = c('1883' = "blue", '1910' = "green", '1950' = "red")) +
   labs(x = 'Year', 
