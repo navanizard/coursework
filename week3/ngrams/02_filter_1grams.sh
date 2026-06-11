@@ -6,6 +6,7 @@
 #   then filter out rows that match using grep -E, egrep, awk, or similar
 #   write results to year_counts.tsv
 
+# FORMAT OF THE DATA: ngram TAB year TAB match_count TAB volume_count NEWLINE
 
 zcat googlebooks-eng-all-1gram-20120701-1.gz |  
-    grep -E '18[0-9][0-9] |19[0-9][0-9]|20[0-9][0-9]' > year_counts.tsv  
+    grep -P '^(18[0-9][0-9]|19[0-9][0-9]|20[0-9][0-9])\t' > year_counts.tsv  
