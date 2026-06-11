@@ -42,7 +42,7 @@ head(ratings) %>% kable()
 ratings %>% 
   group_by(rating) %>% 
   ggplot(aes(x = rating)) +
-  geom_histogram() +
+  geom_bar() +
   labs(x = 'Rating', 
        y = 'Number of Ratings', 
        title = 'Distribution of Rating Values') + 
@@ -66,7 +66,7 @@ ratings %>%
   group_by(movie_id) %>%
   summarize(num_of_ratings = n()) %>%
   ggplot(aes(x = num_of_ratings)) +
-  geom_histogram(bins = 10) +
+  geom_histogram(bins=50) +
   labs(x = 'Number of Movie Ratings',
        y = 'Amount of Movies with that Quantity of Ratings', 
        title = 'Distribution of Movie Popularity') +
