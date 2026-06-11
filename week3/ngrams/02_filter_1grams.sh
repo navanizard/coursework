@@ -9,6 +9,3 @@
 
 zcat googlebooks-eng-all-1gram-20120701-1.gz |  
     grep -E '18[0-9][0-9] |19[0-9][0-9]|20[0-9][0-9]' > year_counts.tsv  
-
-
-
