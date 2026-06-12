@@ -1,32 +1,44 @@
 ---
 title: "Predicting Daily Citibike Trips"
-author: "Your Name"
+author: "Nava Nizard (Hunter College)"
 date: "`r Sys.Date()`"
 output: html_document
 ---
 
 ```{r setup, message=FALSE}
+repo = "https://cran.r-project.org"
+
+install.packages("httpgd", repos = repo)
 library(tidyverse)
 library(modelr)
+library(scales)
+library(httpgd)
+httpgd::hgd()
+
+theme_set(theme_bw())
+
+knitr::opts_chunk$set(echo = TRUE)
+
+setwd("c:/Users/nava/Documents/coursework/week3/")
 ```
 
 ## Load data
 
 ```{r}
-
+trips_per_day_total <- read_tsv("trips_per_day.tsv") %>%
+    select(ymd, num_trips, tmin)
 ```
 
 ## Train/test split
-
 Hold out 10% of the data as a final test set. Use the remaining 90% for
 training and validation.
 
 ```{r}
-
+trips_per_day <- (store 90%)
+trips_per_day_test_data <- (store other 10%)
 ```
 
 ## Baseline model: temperature only
-
 Start with the polynomial model from the complexity control notebook.
 
 ```{r}
@@ -35,7 +47,6 @@ Start with the polynomial model from the complexity control notebook.
 ```
 
 ## Feature engineering
-
 Add features that might help: day of week, month, precipitation, etc.
 Remember: only use information available *before* the day in question.
 
@@ -44,7 +55,6 @@ Remember: only use information available *before* the day in question.
 ```
 
 ## Model comparison
-
 Try different models and compare their validation performance.
 
 ```{r}
@@ -52,7 +62,6 @@ Try different models and compare their validation performance.
 ```
 
 ## Final model
-
 Pick your best model and plot the results.
 
 ```{r}
@@ -66,7 +75,6 @@ Pick your best model and plot the results.
 ```
 
 ## Test set evaluation
-
 **Do this only once, at the very end!**
 
 ```{r}
