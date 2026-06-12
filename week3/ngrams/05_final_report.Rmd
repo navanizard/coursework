@@ -20,7 +20,7 @@ library(here)
 library(scales)
 library(tidyverse)
 library(httpgd)
-httpgd:hgd()
+httpgd::hgd()
 
 theme_set(theme_bw())
 
@@ -145,7 +145,10 @@ years_and_totals %>%
 Does version 2 of the NGram data produce similar results to those presented in 
 Michel et al. (2011), which are based on version 1 data?
 
-Yes, very similar. ---------------------------------------------------------------------------INC
+Yes, the version 2 data produces very similar results. The terms '1883', '1910', and '1950' all 
+follow the same general pattern as in the original paper. Mentions increase as the year approaches, 
+peak around that year, and then decrease over time. While the exact values are not the same, the overall 
+shape and trend of the curves are very similar to those shown in Michel et al. (2011).
 
 # Part C
 > Now check your graph against the graph created by the [NGram Viewer](https://books.google.com/ngrams/).
@@ -190,7 +193,7 @@ years_and_totals %>%
 > Does the difference between (b) and (d) lead you to reevaluate any of the results of 
 > Michel et al. (2011). Why or why not?
 
-As part of answering this question, make an additional plot.
+<!-- As part of answering this question, make an additional plot. -->
 
 ```{r comparing-results}
 years_and_totals %>%
@@ -252,7 +255,8 @@ Store this in an intermediate dataframe.
 ```{r compute-peaks}
 peak_year_for_each_term <- years_and_totals %>%
   group_by(term) %>%
-  filter(proportion_of_mentions == max(proportion_of_mentions)) %>% 
+  filter(year >= term) %>% # the peak happens around the year it refers to (aka avoid picking up noise from very small total counts in early years).
+  filter(proportion_of_mentions == max(proportion_of_mentions)) %>%
   select(term, year, proportion_of_mentions) %>%
   rename(peak_year = year, peak_proportion = proportion_of_mentions)
 ```
@@ -273,7 +277,7 @@ years_and_half_lives <- years_and_half_lives %>%
   group_by(term) %>%
   filter(year == min(year[year > peak_year])) %>% #avoid negative values 
   mutate(half_life_year = year) %>% 
-  mutate(num_of_years_to_reach_half_life = half_life_year - peak_year) #(half - peak) because peak year is less than half year
+  mutate(num_of_years_to_reach_half_life = half_life_year - peak_year) #(half - peak) because peak_year is less than half_year
 ```
 
 ## Step 3: Plot the inset of figure 3a
@@ -285,24 +289,52 @@ years_and_half_lives %>%
   filter(year >= 1850 & year <= 2012) %>%
   ggplot(aes(x = year, y = num_of_years_to_reach_half_life)) +
   geom_point() +
-  geom_point(data = years_and_half_lives %>% filter(term == '1883' | term == '1910' | term == '1950') %>% mutate(term = as.character(term)), aes(color = term)) +
-  geom_smooth() +
+  geom_point(data = years_and_half_lives %>% 
+                    filter((term == '1883' | term == '1910' | term == '1950') & (year >= 1850 & year <= 2012)) %>% 
+                    mutate(term = as.character(term)), 
+             aes(color = term)) +
+  geom_smooth(color = 'purple') +
   scale_color_manual(values = c('1883' = "blue", '1910' = "green", '1950' = "red")) +
   labs(x = 'Year', 
        y = 'Number of Years to Reach Half-Life', 
-       title = 'Half-Lifes of Each Term')  
+       title = 'Half-Lifes of Each Term',
+       color = 'Term')  
 ```
 
-## Step 4: Your written answer
-Write up your answer to Part F here.
+## Step 4: Conclusion
+<!-- Write up your answer to Part F here. -->
+Does version 2 of the NGram data produce similar results to those presented
+in Michel et al. (2011), which are based on version 1 data? 
+
+No, version 2 does not produce results that are very similar to those in Michel et al. (2011). 
+The half-lives in version 2 are much shorter overall, averaging around 6–12 years, while the version 1 
+plot ranges from about 30 years down to 10–15 years. Both plots show a general decrease in half-life over 
+time, but version 1 shows a fairly steady decline over time, whereas version 2 increases until around the 
+1920s before gradually decreasing. These differences suggest that version 2 does not fully reproduce the
+results from version 1. 
 
 # Part G
 > Were there any years that were outliers such as years that were forgotten particularly 
 > quickly or particularly slowly? Briefly speculate about possible reasons for that pattern 
 > and explain how you identified the outliers.
 
-## Your written answer
-Write up your answer to Part G here. Include code that shows the years with the smallest and largest half-lifes.
+## Step 1: Conclusion
+<!-- Write up your answer to Part G here. Include code that shows the years with the smallest and largest half-lifes. -->
+The years '1803' and '1810' were forgotten the fastest, reaching their half-life after only 1 year. 
+The year '1800' was forgotten the slowest, taking 23 years to reach its half-life. (I found these 
+outliers by looking for the minimum and maximum half-life values.) A possible explanation is that 
+1800 is the start of a new century, so it may have been referenced more often for a longer period 
+of time. Meanwhile, 1803 and 1810 may not have stood out as much, causing their mentions to decline 
+more quickly.
+
+```{r outliers-in-half-lifes}
+years_and_half_lives %>% 
+  ungroup() %>%
+  select(term, num_of_years_to_reach_half_life) %>%
+  filter(num_of_years_to_reach_half_life == min(num_of_years_to_reach_half_life) |
+         num_of_years_to_reach_half_life == max(num_of_years_to_reach_half_life)) %>%
+  rename('outlier_terms' = term, 'min/max_half_life_vals' = num_of_years_to_reach_half_life)
+```
 
 # Makefile
 Edit the `Makefile` in this directory to execute the full set of scripts that download the data, 

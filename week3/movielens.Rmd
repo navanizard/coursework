@@ -24,7 +24,7 @@ theme_set(theme_bw())
 
 Read data from the `ratings.csv` file
 ```{r load-data}
-setwd("c:/Users/nava/Documents/coursework/week3")
+setwd("c:/Users/nava/Documents/coursework/week3/ml-10M100K")
 
 ratings <- read_csv('ratings.csv',
                     col_names = c('user_id','movie_id','rating','timestamp'))
