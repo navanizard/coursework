@@ -25,8 +25,7 @@ setwd("c:/Users/nava/Documents/coursework/week3/")
 ## Load data
 
 ```{r}
-trips_per_day_total <- read_tsv("trips_per_day.tsv") %>%
-    select(ymd, num_trips, tmin)
+trips_per_day_total <- read_tsv("trips_per_day.tsv")
 ```
 
 ## Train/test split
@@ -34,8 +33,30 @@ Hold out 10% of the data as a final test set. Use the remaining 90% for
 training and validation.
 
 ```{r}
-trips_per_day <- (store 90%)
-trips_per_day_test_data <- (store other 10%)
+set.seed(42) # makes the random sampling reproducible
+
+# STEP 1: FEATURE ENGINEERING THE DATA:
+trips_per_day_total <- trips_per_day_total %>%
+    mutate(season = case_when(month(ymd) == 12 | month(ymd) == 1 | month(ymd) == 2 ~ "winter",
+                              month(ymd) == 3  | month(ymd) == 4 | month(ymd) == 5 ~ "spring",
+                              month(ymd) == 6  | month(ymd) == 7 | month(ymd) == 8 ~ "summer",
+                              month(ymd) == 9  | month(ymd) == 10 | month(ymd) == 11 ~ "fall")) %>%
+    mutate(rain_lvl = case_when(prcp <= mean(prcp) ~ "low",
+                            prcp > mean(prcp) ~ "high")) %>%
+    mutate(avg_temp = (tmin + tmax) / 2) %>%
+    mutate(avg_temp = case_when(avg_temp <= mean(avg_temp) ~ "cold",
+                                avg_temp > mean(avg_temp) ~ "hot")) %>%
+    mutate(day_of_the_week = wday(ymd, label = TRUE))
+View(trips_per_day_total)
+
+# STEP 2: SPLIT THE DATA [80 | 10 | 10] -> [train | validate | test]
+num_of_days <- nrow(trips_per_day_total)
+rows <- sample(num_of_days, replace = FALSE) # randomize the row indices
+n_train <- floor(num_of_days * 0.8) # number of rows for the training data (80%)
+n_validate <- floor(num_of_days * 0.1) # number of rows for the validate data (10%)
+train <- trips_per_day_total[rows[1:n_train],] # train = 80% of data (from 0-80)
+validate <- trips_per_day_total[rows[(n_train + 1):(n_train + n_validate)],] # validate = 10% of data (from 80-90)
+test <- trips_per_day_total[rows[(n_train + n_validate + 1):num_of_days],] # test = 10% of data (from 90-100)
 ```
 
 ## Baseline model: temperature only
@@ -44,6 +65,33 @@ Start with the polynomial model from the complexity control notebook.
 ```{r}
 # TODO: fit a linear model using poly(tmin, degree) on training data
 # TODO: try different polynomial degrees and evaluate RMSE on validation data
+
+K <- 1:8
+train_err <- c() # vector with training RMSE for each degree
+validate_err <- c() # vector with validatation RMSE for each degree
+
+for (k in K) {
+    tmin_model <- lm(num_trips ~ poly(tmin, k, raw = T), data = train)
+
+    train_err[k] <- sqrt(mean((predict(tmin_model, train) - train$num_trips)^2)) # RMSE = sqrt(mean((predicted_val - actual_val)^2)
+    validate_err[k] <- sqrt(mean((predict(tmin_model, validate) - validate$num_trips)^2))
+}
+
+# Plot the training and validation error as a function of the polynomial degree
+plot_error_data <- data.frame(K, train_err, validate_err) %>%
+    pivot_longer(names_to = 'error_type', values_to = 'RMSE', cols = -K)
+
+plot_error_data %>%
+    ggplot(aes(x = K, y = RMSE, color = error_type)) +
+    geom_line() +
+    scale_x_continuous(breaks = K) +
+    labs(x = 'Degree of Polynomial', 
+         y = 'Root Mean Square Error (RMSE)',
+         color = 'Data Type',
+         title = 'Training and Validation RMSE by Polynomial Degree') +
+    scale_color_discrete(labels = c(train_err = "Training Data",
+                                    validate_err = "Validation Data"))
+# Conlusion: Choose k = 4
 ```
 
 ## Feature engineering
@@ -51,13 +99,56 @@ Add features that might help: day of week, month, precipitation, etc.
 Remember: only use information available *before* the day in question.
 
 ```{r}
-
+# I did the feature engineering in an earlier step, before splitting the data.
 ```
 
 ## Model comparison
 Try different models and compare their validation performance.
 
 ```{r}
+seasons_model <- lm(num_trips ~ season, data = train)
+seasons_r_sqr <- summary(seasons_model)$r.squared # 0.57 
+rmse(seasons_model, validate) < validate_err[4] # FALSE
+
+rain_lvl_model <- lm(num_trips ~ rain_lvl, data = train)
+rain_lvl_r_sqr <- summary(rain_lvl_model)$r.squared # 0.07 
+rmse(rain_lvl_model, validate) < validate_err[4] # FALSE
+
+avg_temp_model <- lm(num_trips ~ avg_temp, data = train)
+avg_temp_r_sqr <- summary(avg_temp_model)$r.squared # 0.66 GOOD
+rmse(avg_temp_model, validate) < validate_err[4] # FALSE
+
+day_of_the_week_model <- lm(num_trips ~ day_of_the_week, data = train)
+day_of_the_week_r_sqr <- summary(day_of_the_week_model)$r.squared # 0.05 
+rmse(day_of_the_week_model, validate) < validate_err[4] # FALSE
+
+seasons_and_avg_temp_model <- lm(num_trips ~ (season * avg_temp), data = train) # * slightly higher r_sqrt than +. 
+seasons_and_avg_temp_r_sqr <- summary(seasons_and_avg_temp_model)$r.squared # 0.71 
+rmse(seasons_and_avg_temp_model, validate) < validate_err[4] # FALSE
+
+seasons_and_avg_temp_and_dow_model <- lm(num_trips ~ (season * avg_temp) + day_of_the_week, data = train) # 
+seasons_and_avg_temp_and_dow_r_sqr <- summary(seasons_and_avg_temp_and_dow_model)$r.squared # 0.76 
+rmse(seasons_and_avg_temp_and_dow_model, validate) < validate_err[4] # FALSE
+
+all_model <- lm(num_trips ~ (season * avg_temp * rain_lvl) + day_of_the_week, data = train)
+all_r_sqr <- summary(all_model)$r.squared # 0.82 
+rmse(all_model, validate) < validate_err[4] # TRUE
+
+all2_model <- lm(num_trips ~ (season * avg_temp * rain_lvl) + day_of_the_week + snow, data = train)
+all2_r_sqr <- summary(all2_model)$r.squared # 0.83 
+rmse(all2_model, validate) < validate_err[4] # TRUE
+
+all3_model <- lm(num_trips ~ (season * avg_temp * rain_lvl * tmin) + day_of_the_week + snow, data = train)
+all3_r_sqr <- summary(all3_model)$r.squared # 0.8938 
+rmse(all3_model, validate) < validate_err[4] # TRUE
+
+all4_model <- lm(num_trips ~ (season * avg_temp * rain_lvl * tmin) + prcp + day_of_the_week + snow, data = train)
+all4_r_sqr <- summary(all4_model)$r.squared # 0.8987 
+rmse(all4_model, validate) < validate_err[4] # TRUE
+
+all5_model <- lm(num_trips ~ (season * avg_temp * rain_lvl * tmin) + prcp + day_of_the_week + snwd, data = train)
+all5_r_sqr <- summary(all5_model)$r.squared # 0.90
+rmse(all5_model, validate) < validate_err[4] # TRUE
 
 ```
 
@@ -65,13 +156,35 @@ Try different models and compare their validation performance.
 Pick your best model and plot the results.
 
 ```{r}
+final_model <- lm(num_trips ~ (season * avg_temp * rain_lvl * tmin) + prcp + day_of_the_week + snwd, data = train)
+final_r_sqr <- summary(final_model)$r.squared # 0.9018
+rmse(final_model, validate) < validate_err[4] # TRUE
 
+predicted_trips <- predict(final_model, test) 
+plot_test_data <- data.frame(ymd = test$ymd, actual_trips = test$num_trips, predicted_trips)
+
+ggplot(plot_test_data, aes(x = ymd)) +
+    geom_line(aes(y = predicted_trips, color = "Predicted")) +
+    geom_point(aes(y = actual_trips, color = "Actual")) + 
+    scale_color_manual(values = c("Predicted" = "black",
+                                   "Actual" = "blue")) +
+    labs(x = 'Date', 
+         y = 'Number of Trips',
+         title = 'Predicted VS Actual Number of Trips',
+         color = "",)
+
+ggplot(plot_test_data, aes(x = predicted_trips, y = actual_trips)) +
+    geom_point() +
+    labs(x = 'Predicted Number of Trips', 
+         y = 'Actual Number of Trips',
+         title = 'Model Accuracy in Predicting Number of Trips')
 ```
 
 ## Save model
 
 ```{r}
-
+ #.RData file using the save function. 
+save(final_model, file = "final_model.RData")
 ```
 
 ## Test set evaluation
@@ -81,4 +194,17 @@ Pick your best model and plot the results.
 # TODO: load your saved model and predict on trips_test
 # TODO: compute RMSE on test set
 # TODO: how do you think this model will perform on future data?
+load("final_model.RData")
+test_rmse <- rmse(final_model, test)
+test_rmse
+
+test_rmse >= rmse(final_model, validate) # TRUE, which is good!
 ```
+
+My final model had a test RMSE of `r rmse(final_model, test)` trips per day. This is much lower than the 
+baseline model's RMSE of `r validate_err[4]`, so adding more features improved the predictions. The test RMSE was also 
+very close to the validation RMSE of `r rmse(final_model, validate)`, which suggests that the model performed 
+similarly on new data and was not overfit to the training data.
+
+I think the model will perform about the same on future data, although it could be slightly worse because 
+differnet factors may be different from the data used to train the model.
