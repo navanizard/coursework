@@ -1747,7 +1747,7 @@ display: none;
 
 <h1 class="title toc-ignore">MSD Homework 2, Problem 3</h1>
 <h4 class="author">Nava Nizard (Hunter College)</h4>
-<h4 class="date">2026-06-11 23:55:16.216903</h4>
+<h4 class="date">2026-06-14 17:31:12.413434</h4>
 
 </div>
 
@@ -1884,7 +1884,7 @@ total_counts_data_path &lt;- here(&quot;week3/ngrams&quot;, &quot;total_counts.c
 year_counts &lt;- read_tsv(year_counts_data_path,
                          col_names = c(&#39;term&#39;, &#39;year&#39;, &#39;volume&#39;, &#39;book_count&#39;))</code></pre>
 <pre><code>## Rows: 53393 Columns: 4
-## ── Column specification ─────────────────────────────────────────────────────────────────────
+## ── Column specification ──────────────────────────────────────────────────────────────────────────────────────────
 ## Delimiter: &quot;\t&quot;
 ## dbl (4): term, year, volume, book_count
 ## 
@@ -1893,7 +1893,7 @@ year_counts &lt;- read_tsv(year_counts_data_path,
 <pre class="r"><code>total_counts &lt;- read_csv(total_counts_data_path, 
                           col_names = c(&#39;year&#39;, &#39;total_volume&#39;, &#39;page_count&#39;, &#39;book_count&#39;))</code></pre>
 <pre><code>## Rows: 425 Columns: 4
-## ── Column specification ─────────────────────────────────────────────────────────────────────
+## ── Column specification ──────────────────────────────────────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
 ## dbl (4): year, total_volume, page_count, book_count
 ## 
@@ -2160,26 +2160,28 @@ the outliers.</p>
 <div id="step-1-conclusion" class="section level2">
 <h2>Step 1: Conclusion</h2>
 <!-- Write up your answer to Part G here. Include code that shows the years with the smallest and largest half-lifes. -->
-<p>The years ‘1803’ and ‘1810’ were forgotten the fastest, reaching
-their half-life after only 1 year. The year ‘1800’ was forgotten the
-slowest, taking 23 years to reach its half-life. (I found these outliers
-by looking for the minimum and maximum half-life values.) A possible
-explanation is that 1800 is the start of a new century, so it may have
-been referenced more often for a longer period of time. Meanwhile, 1803
-and 1810 may not have stood out as much, causing their mentions to
-decline more quickly.</p>
+<p>The years 1855, 1856, and 1857 were forgotten the fastest, each
+reaching their half-life after only 3 years. The year 1900 was forgotten
+the slowest, taking 19 years to reach its half-life. (I identified these
+outliers by finding the minimum and maximum values of the number of
+years required to reach half-life.)</p>
+<p>One possible explanation is that 1900 remained memorable for a longer
+period because it marked the beginning of a new century, causing it to
+be referenced more frequently over time.</p>
 <pre class="r"><code>years_and_half_lives %&gt;% 
   ungroup() %&gt;%
+  filter(year &gt;= 1850 &amp; year &lt;= 2012) %&gt;%
   select(term, num_of_years_to_reach_half_life) %&gt;%
   filter(num_of_years_to_reach_half_life == min(num_of_years_to_reach_half_life) |
          num_of_years_to_reach_half_life == max(num_of_years_to_reach_half_life)) %&gt;%
   rename(&#39;outlier_terms&#39; = term, &#39;min/max_half_life_vals&#39; = num_of_years_to_reach_half_life)</code></pre>
-<pre><code>## # A tibble: 3 × 2
+<pre><code>## # A tibble: 4 × 2
 ##   outlier_terms `min/max_half_life_vals`
 ##           &lt;dbl&gt;                    &lt;dbl&gt;
-## 1          1800                       23
-## 2          1803                        1
-## 3          1810                        1</code></pre>
+## 1          1855                        3
+## 2          1857                        3
+## 3          1900                       19
+## 4          1856                        3</code></pre>
 </div>
 </div>
 <div id="makefile" class="section level1">

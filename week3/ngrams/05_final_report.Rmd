@@ -320,16 +320,17 @@ results from version 1.
 
 ## Step 1: Conclusion
 <!-- Write up your answer to Part G here. Include code that shows the years with the smallest and largest half-lifes. -->
-The years '1803' and '1810' were forgotten the fastest, reaching their half-life after only 1 year. 
-The year '1800' was forgotten the slowest, taking 23 years to reach its half-life. (I found these 
-outliers by looking for the minimum and maximum half-life values.) A possible explanation is that 
-1800 is the start of a new century, so it may have been referenced more often for a longer period 
-of time. Meanwhile, 1803 and 1810 may not have stood out as much, causing their mentions to decline 
-more quickly.
+The years 1855, 1856, and 1857 were forgotten the fastest, each reaching their half-life after only 3 years. 
+The year 1900 was forgotten the slowest, taking 19 years to reach its half-life. (I identified these outliers 
+by finding the minimum and maximum values of the number of years required to reach half-life.)
+
+One possible explanation is that 1900 remained memorable for a longer period because it marked the 
+beginning of a new century, causing it to be referenced more frequently over time.
 
 ```{r outliers-in-half-lifes}
 years_and_half_lives %>% 
   ungroup() %>%
+  filter(year >= 1850 & year <= 2012) %>%
   select(term, num_of_years_to_reach_half_life) %>%
   filter(num_of_years_to_reach_half_life == min(num_of_years_to_reach_half_life) |
          num_of_years_to_reach_half_life == max(num_of_years_to_reach_half_life)) %>%
