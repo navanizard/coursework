@@ -63,7 +63,8 @@ trips_with_weather <- trips_with_weather %>%
 
 ```{r testing}
 test_predictions <- predict(final_model, trips_with_weather) 
-test_rmse <- rmse(final_model, trips_with_weather) #8813
+test_rmse <- rmse(final_model, trips_with_weather) #8813 trips
+rsquare(final_model, trips_with_weather) #70%
 ```
 
 ```{r plot-data}
