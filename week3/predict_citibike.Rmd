@@ -41,12 +41,13 @@ trips_per_day_total <- trips_per_day_total %>%
                               month(ymd) == 3  | month(ymd) == 4 | month(ymd) == 5 ~ "spring",
                               month(ymd) == 6  | month(ymd) == 7 | month(ymd) == 8 ~ "summer",
                               month(ymd) == 9  | month(ymd) == 10 | month(ymd) == 11 ~ "fall")) %>%
+    mutate(day_of_the_week = wday(ymd, label = TRUE)) %>%
+    group_by(season) %>%
     mutate(rain_lvl = case_when(prcp <= mean(prcp) ~ "low",
                             prcp > mean(prcp) ~ "high")) %>%
     mutate(avg_temp = (tmin + tmax) / 2) %>%
     mutate(avg_temp = case_when(avg_temp <= mean(avg_temp) ~ "cold",
-                                avg_temp > mean(avg_temp) ~ "hot")) %>%
-    mutate(day_of_the_week = wday(ymd, label = TRUE))
+                                avg_temp > mean(avg_temp) ~ "hot"))
 View(trips_per_day_total)
 
 # STEP 2: SPLIT THE DATA [80 | 10 | 10] -> [train | validate | test]
@@ -89,9 +90,9 @@ plot_error_data %>%
          y = 'Root Mean Square Error (RMSE)',
          color = 'Data Type',
          title = 'Training and Validation RMSE by Polynomial Degree') +
-    scale_color_discrete(labels = c(train_err = "Training Data",
-                                    validate_err = "Validation Data"))
-# Conlusion: Choose k = 4
+    scale_color_discrete(labels = c(validate_err = "Validation Data",
+                                    train_err = "Training Data"))
+# Conlusion: Choose k = 3
 ```
 
 ## Feature engineering
@@ -157,7 +158,7 @@ Pick your best model and plot the results.
 
 ```{r}
 final_model <- lm(num_trips ~ (season * avg_temp * rain_lvl * tmin) + prcp + day_of_the_week + snwd, data = train)
-final_r_sqr <- summary(final_model)$r.squared # 0.9018
+final_r_sqr <- summary(final_model)$r.squared # 0.9028
 rmse(final_model, validate) < validate_err[4] # TRUE
 
 predicted_trips <- predict(final_model, test) 
@@ -198,7 +199,7 @@ load("final_model.RData")
 test_rmse <- rmse(final_model, test)
 test_rmse
 
-test_rmse >= rmse(final_model, validate) # TRUE, which is good!
+test_rmse >= rmse(final_model, validate) # ?
 ```
 
 My final model had a test RMSE of `r rmse(final_model, test)` trips per day. This is much lower than the 

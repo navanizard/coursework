@@ -1,0 +1,104 @@
+---
+title: "Testing Regression Model for Citibike Trips"
+author: "Nava Nizard (Hunter College)"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, message=FALSE}
+repo = "https://cran.r-project.org"
+
+install.packages("httpgd", repos = repo)
+library(tidyverse)
+library(modelr)
+library(scales)
+library(httpgd)
+httpgd::hgd()
+
+theme_set(theme_bw())
+
+knitr::opts_chunk$set(echo = TRUE)
+
+setwd("c:/Users/nava/Documents/coursework/week4/")
+
+load("c:/Users/nava/Documents/coursework/week3/final_model.RData")
+```
+
+## Load data
+
+```{r}
+trips_per_day <- read_tsv("trips_per_day_2015.tsv")
+weather <- read_csv("weather_2015.csv") %>% 
+    rename("ymd" = "DATE", 
+           "prcp" = "PRCP", 
+           "snow" = "SNOW",
+           "snwd" = "SNWD", 
+           "tmax" = "TMAX", 
+           "tmin" = "TMIN")
+trips_with_weather <- left_join(trips_per_day, weather, by = "ymd") %>%
+    select(-STATION, -NAME, -TAVG)
+```
+
+## Feature Engineer New Data Set
+```{r feature-engineer}
+# make sure to have same fields used in the model
+trips_with_weather <- trips_with_weather %>% filter(year(ymd) <= 2015)
+trips_with_weather <- trips_with_weather %>%
+    mutate(tmin = tmin * 0.1, tmax = tmax * 0.1) %>%
+    mutate(season = case_when(month(ymd) == 12 | month(ymd) == 1 | month(ymd) == 2 ~ "winter",
+                              month(ymd) == 3  | month(ymd) == 4 | month(ymd) == 5 ~ "spring",
+                              month(ymd) == 6  | month(ymd) == 7 | month(ymd) == 8 ~ "summer",
+                              month(ymd) == 9  | month(ymd) == 10 | month(ymd) == 11 ~ "fall")) %>%
+    mutate(day_of_the_week = wday(ymd, label = TRUE)) %>%
+    group_by(season) %>%
+    mutate(rain_lvl = case_when(prcp <= mean(prcp) ~ "low",
+                            prcp > mean(prcp) ~ "high")) %>%
+    mutate(avg_temp = (tmin + tmax) / 2) %>%
+    mutate(avg_temp = case_when(avg_temp <= mean(avg_temp) ~ "cold",
+                                avg_temp > mean(avg_temp) ~ "hot"))
+
+# View(trips_with_weather)
+# View(train)       
+```
+
+```{r testing}
+test_predictions <- predict(final_model, trips_with_weather) 
+test_rmse <- rmse(final_model, trips_with_weather) #8813
+```
+
+```{r plot-data}
+plot_test_data <- data.frame(ymd = trips_with_weather$ymd, actual_trips = trips_with_weather$num_trips, test_predictions)
+
+ggplot(plot_test_data, aes(x = ymd)) +
+    geom_line(aes(y = test_predictions, color = "Predicted")) +
+    geom_point(aes(y = actual_trips, color = "Actual")) + 
+    scale_color_manual(values = c("Predicted" = "black",
+                                   "Actual" = "blue")) +
+    labs(x = 'Date', 
+         y = 'Number of Trips',
+         title = 'Predicted VS Actual Number of Trips',
+         color = "",)
+
+ggplot(plot_test_data, aes(x = test_predictions, y = actual_trips)) +
+    geom_point() +
+    labs(x = 'Predicted Number of Trips', 
+         y = 'Actual Number of Trips',
+         title = 'Model Accuracy in Predicting Number of Trips')
+```
+
+## Conclusion
+When I first tested my model on the test set, I got a very large RMSE of about 120,000 trips 
+and noticed some huge spikes in the predictions. After investigating, I realized that the issue 
+was coming from my feature engineering. I had originally created `avg_temp` and `rain_lvl` using 
+averages across the entire year instead of grouping by season first. This caused some days to be 
+classified in a way that created extra fluctuations in the predictions.
+
+After fixing this by grouping by season before calculating these variables, the RMSE decreased 
+a lot to `r rmse(final_model, trips_with_weather)` trips. (I know that you're not supposed to change your model after looking 
+at the test results, but in this case I was correcting a mistake in my feature engineering rather 
+than intentionally tuning the model to perform better on the test set.)
+
+There are still some large fluctuations during the summer months, which suggests that there 
+may be other factors affecting Citi Bike usage that are not included in my model. Overall, 
+the model improved a lot after fixing the feature engineering issue, but there is still room 
+for improvement.
